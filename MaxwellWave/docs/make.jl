@@ -10,5 +10,6 @@ makedocs(
     pages = [
         "index.md",
         "wave2D.md",
+        "auxiliary.md",
     ],
 )

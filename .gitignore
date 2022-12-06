@@ -1,0 +1,10 @@
+.DS_Store
+.vscode/
+.ipynb_checkpoints/
+**/Manifest.toml
+**/LocalPreferences.toml
+**/build
+**/homogeneous_dirichlet_Ez_out
+*.e
+*.o
+**/bin_io.bin
