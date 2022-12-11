@@ -22,11 +22,15 @@ include("../src/auxiliary.jl")
 Solves the two dimensional wave equation problem:
 
 ```math
-\nabla^2 E_z - \frac{1}{c^2} \frac{\partial^2 }{\partial t^2} E_z = 0, \; E_z \in \Omega
+\nabla^2 E_z - \frac{1}{c^2} \frac{\partial^2 }{\partial t^2} E_z = 0, \; E_z \in \Omega \times \left[0,T\right]
 ```
 ```math
-E_z = 0, \; E_z \in \partial \Omega
+E_z = 0, \; E_z \in \partial \Omega \times \left[0,T\right]
 ```
+```math
+E_z = e^{-(x - L_x/2)^2 -(y - L_y/2)^2} \cos\left(k_0 x\right), \; E_z \in  \Omega \times \left[0\right]
+```
+
 
 on a regular grid with ``c = 1`` and ``L_x = L_y = 10``
 
@@ -56,10 +60,10 @@ function homogeneous_dirichlet_Ez_2D(; do_visu=false)
     w = k * sqrt(c2)
 
     # numerical parameters
-    nx = 100
+    nx = 200
     ny = nx
-    nt = 2000
-    nvis = 50
+    nt = 1000
+    nvis = 20
 
     # initailize glo bal grid and such MPI
     me, dims = init_global_grid(nx, ny, 1)
@@ -69,9 +73,9 @@ function homogeneous_dirichlet_Ez_2D(; do_visu=false)
     # derived numerics
     dx = lx / nx_g()
     dy = ly / ny_g()
-    _dx = 1 / dx
-    _dy = 1 / dy
-    dt = min(dx, dy) / sqrt(c2) / 2
+    _dx2 = (1 / dx)^2
+    _dy2 = (1 / dy)^2
+    dt = min(dx, dy) / sqrt(c2) / 4
 
     # array initialization 
     u = @zeros(nx, ny)
@@ -79,7 +83,7 @@ function homogeneous_dirichlet_Ez_2D(; do_visu=false)
 
     update_halo!(u)
     v = @zeros(nx, ny)
-    v .= Data.Array([-exp(-(x_g(ix, dx, u) - lx / 2)^2 - (y_g(iy, dy, u) - ly / 2)^2) * w * sin(k * x_g(ix, dx, u)) for ix = 1:size(u, 1), iy = 1:size(u, 2)])
+    v .= Data.Array([exp(-(x_g(ix, dx, u) - lx / 2)^2 - (y_g(iy, dy, u) - ly / 2)^2) * w * sin(k * x_g(ix, dx, u)) for ix = 1:size(u, 1), iy = 1:size(u, 2)])
 
 
     if do_visu
@@ -96,7 +100,7 @@ function homogeneous_dirichlet_Ez_2D(; do_visu=false)
     end
 
     for it = 1:nt
-        @parallel (1:size(u, 1), 1:size(u, 2)) update_v!(u, v, dt, _dx, _dy, c2)
+        @parallel (1:size(u, 1), 1:size(u, 2)) update_v_nabla2!(u, v, dt, _dx2, _dy2, c2)
         @hide_communication b_width begin
             @parallel (1:size(u, 1) - 2, 1:size(u, 2) - 2) update_u!(u, v, dt)
             update_halo!(u)
@@ -106,8 +110,8 @@ function homogeneous_dirichlet_Ez_2D(; do_visu=false)
             gather!(u_inn, u_v)
             if me == 0
                 plt = heatmap(xi_g, yi_g, u_v'; xlims=(xi_g[1], xi_g[end]), ylims=(yi_g[1], yi_g[end]), clims=(-1, 1), aspect_ratio=1, c=:turbo)
-                png(plt,@sprintf("homogeneous_dirichlet_Ez_out/%04d.png",iframe+=1))
-                save_array(@sprintf("homogeneous_dirichlet_Ez_out/out_T_%04d",iframe),convert.(Float32,u_v))
+                png(plt,@sprintf("homogeneous_dirichlet_Ez_out/%05d.png",iframe+=1))
+                save_array(@sprintf("homogeneous_dirichlet_Ez_out/out_T_%05d",iframe),convert.(Float32,u_v))
             end
         end
     end
