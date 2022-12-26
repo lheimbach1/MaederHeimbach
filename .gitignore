@@ -9,3 +9,4 @@
 *.e
 *.o
 **/bin_io.bin
+**/preliminarytest.jl

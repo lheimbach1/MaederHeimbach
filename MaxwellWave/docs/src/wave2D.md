@@ -1,7 +1,7 @@
 # Wave 2D
 
 ```@contents
-Depth = 2
+Depth = 1
 ```
 
 ```@docs

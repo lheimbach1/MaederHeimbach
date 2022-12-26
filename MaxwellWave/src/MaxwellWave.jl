@@ -16,4 +16,11 @@ using ParallelStencil, ParallelStencil.FiniteDifferences3D
 include("../src/wave3D.jl")
 end
 
+module Wave3DnonlinearChi3
+using ParallelStencil, ParallelStencil.FiniteDifferences3D
+@init_parallel_stencil(Threads, Float64, 3)
+include("../src/wave3DnonlinearChi3.jl")
+end
+
+
 end # module MaxwellWave

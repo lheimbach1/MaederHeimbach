@@ -1,7 +1,7 @@
 # Auxiliary
 
 ```@contents
-Depth = 2
+Depth = 1
 ```
 
 ```@docs

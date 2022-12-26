@@ -11,6 +11,7 @@ makedocs(
         "index.md",
         "wave2D.md",
         "wave3D.md",
+        "wave3DnonlinearChi3.md",
         "auxiliary.md",
     ],
 )

@@ -49,7 +49,7 @@ Formulated as:
     \end{bmatrix} + 
     \begin{bmatrix}
         0\\
-        \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)}\nabla^2 \vec{u}\left(\vec{r},t\right) - \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)} \nabla \left(\frac{\nabla \varepsilon_r\left(\vec{r}\right) \cdot \vec{u}\left(\vec{r},t\right)}{\varepsilon_r\left(\vec{r}\right)} \right)\\
+        \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)}\nabla^2 \vec{u}\left(\vec{r},t\right) + \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)} \nabla \left(\frac{\nabla \varepsilon_r\left(\vec{r}\right) \cdot \vec{u}\left(\vec{r},t\right)}{\varepsilon_r\left(\vec{r}\right)} \right)\\
     \end{bmatrix}
 ```
 
@@ -88,7 +88,7 @@ function homogeneous_dirichlet_vecE_3D(; do_visu=false)
     nt = 1000
     nvis = 10
 
-    # initailize glo bal grid and such MPI
+    # initailize global grid and such MPI
     me, dims = init_global_grid(nx, ny, nz)
 
     # optimization for communication
