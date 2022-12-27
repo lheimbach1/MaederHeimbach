@@ -155,9 +155,19 @@ $$\vec{E}\left(\vec{r},t\right) = 0, \; \vec{r} \in \partial \Omega_{PEC}$$
 
 ## Perfect Absorbing Boundary Conditions
 
-Another choice for the boundary of the domain are perfect absorbing boundary conditions. These models infinit free space propagation of the field without reflections. The following mixed boundary condition is a possible realisation:
+Perfect absorbing boundary conditions should model infinit free space propagation of the field without reflections.
 
-$$\vec{E}\left(\vec{r},t\right) = todo, \; \vec{r} \in \partial \Omega_{PA}$$
+A first naive idea is to use again the perfect electric conductor boundary conditions, but introduce a highly absorbing conductivity layer at the boundary.
+
+Another choice for the perfect absorbing boundary conditions is the zeroth order approximation. This choice is represented through the following mixed boundary condition:
+
+$$\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right), \; \vec{r} \in \partial \Omega_{PA0}$$
+
+Where $c$ is the speed of light in the boundary medium and $\vec{n}$ is the outwards pointing boundary normal vector. This can be then rewriten in the following way:
+
+$$\vec{v}\left(\vec{r},t\right) = - c \left(\vec{n} \cdot \nabla \right)\vec{u}\left(\vec{r},t\right), \; \vec{r} \in \partial \Omega_{PA0}$$
+
+Therefore, the velocity can be directly calculated on the boundary and is not undefined anymore as before. In addition, we need the value of $\vec{u}\left(\vec{r},t\right)$ on the boundary. This we get through applying the update rule not only in the inside of the domain, but on the absorbing boundary.
 
 # Results
 

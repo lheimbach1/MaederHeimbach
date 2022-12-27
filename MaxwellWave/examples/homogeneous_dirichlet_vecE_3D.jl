@@ -2,6 +2,7 @@ using Documenter
 
 using Plots, ParallelStencil, ParallelStencil.FiniteDifferences3D, Printf
 using ImplicitGlobalGrid
+import MPI
 
 # decide if one uses the gpu or cpu
 const USE_GPU = false
@@ -17,9 +18,7 @@ include("../src/auxiliary.jl")
 
 @doc raw"""
     homogeneous_dirichlet_vecE_3D(; do_visu=false)
-
 Solves the two wave equation problem:
-
 ```math
 \nabla^2 \vec{E}\left(\vec{r},t\right) - \nabla \left(\frac{\nabla \varepsilon_r\left(\vec{r}\right) \cdot \vec{E}\left(\vec{r},t\right)}{\varepsilon_r\left(\vec{r}\right)} \right) - \mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right) \frac{\partial^2}{\partial t^2}\vec{E}\left(\vec{r},t\right) -\mu_0 \left(\frac{\partial}{\partial t}\sigma\left(\vec{r},t\right)\right)\vec{E}\left(\vec{r},t\right) -\mu_0\sigma\left(\vec{r},t\right) \left(\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right)\right) = 0, \; \vec{E} \in \Omega \times \left[0,T\right]
 ```
@@ -27,12 +26,9 @@ Solves the two wave equation problem:
 \vec{E} = 0, \; \vec{E} \in \partial \Omega \times \left[0,T\right]
 ```
 ```math
-\vec{E} = \vec{n}_x e^{-(y - L_y/2)^2 -(z - L_z/2)^2}  TODO, \; E_z \in  \Omega \times \left[0\right]
+\vec{E} = 2*\vec{n}_y e^{-(y - L_y/2)^2 -(z - L_z/2)^2}  sech\left(0.5 \left(k_x x - \omega t \right)\right), \; E_z \in  \Omega \times \left[0\right]
 ```
-
-
 on a regular grid with ``\varepsilon_0 = 1``, ``\varepsilon_r\left(\vec{r}\right) = e^{-(y-L_y/2)^2-(z-L_z/2)^2}``, ``\sigma\left(t,\vec{r}\right) = e^{-(y-L_y/2)^2-(z-L_z/2)^2}``   and ``L_x = L_y = L_z = 10``
-
 Formulated as: 
 ```math
 \frac{\partial}{\partial t}\begin{bmatrix}
@@ -52,7 +48,6 @@ Formulated as:
         \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)}\nabla^2 \vec{u}\left(\vec{r},t\right) + \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)} \nabla \left(\frac{\nabla \varepsilon_r\left(\vec{r}\right) \cdot \vec{u}\left(\vec{r},t\right)}{\varepsilon_r\left(\vec{r}\right)} \right)\\
     \end{bmatrix}
 ```
-
 and discretized in the leap frog fashion to ensure approximatly energy conservation:
 ```math
 \vec{v}^{j+\frac{1}{2}} = \vec{v}^{j-\frac{1}{2}} + \vec{f}\left(\vec{u}^{j},\vec{v}^{j-\frac{1}{2}}\right)  
@@ -60,36 +55,20 @@ and discretized in the leap frog fashion to ensure approximatly energy conservat
 ```math
 \vec{u}^{j+1} = \vec{u}^{j} + dt*\vec{v}^{j+\frac{1}{2}}
 ```
-
 """
 function homogeneous_dirichlet_vecE_3D(; do_visu=false)
-    # physics
-    lx = 10
-    ly = lx
-    lz = lx
-    # nonphysical constants for proof of concept
-    mu0 = 1
-    epsilon0 = 1
-    c2 = 1 / mu0 / epsilon0
-    lambda = 1
-    k0 = 2 * pi / lambda
-    w0 = k0 * sqrt(c2)
-    p0 = zeros(3)
 
-    # linearly polarized in x direction
-    p0[1] = 1
-    #pulse shape 
-    sigma2 = [1 1 1]
+    # where to save and example name
+    example_name = "homogeneous_dirichlet_vecE_3D"
 
-    # numerics
-    nx = 40
-    ny = nx
-    nz = nx
-    nt = 1000
-    nvis = 10
+    # include the physics and numerics settings
+    include(example_name* "_settings.jl")
 
     # initailize global grid and such MPI
-    me, dims = init_global_grid(nx, ny, nz)
+    me, dims, _, _, comm_cart = init_global_grid(nx, ny, nz)
+    neighbors_x = MPI.Cart_shift(comm_cart, 0, 1)
+    neighbors_y = MPI.Cart_shift(comm_cart, 1, 1)
+    neighbors_z = MPI.Cart_shift(comm_cart, 2, 1)
 
     # optimization for communication
     b_width = (8, 8, 4)
@@ -101,6 +80,9 @@ function homogeneous_dirichlet_vecE_3D(; do_visu=false)
     _dx2 = (1 / dx)^2
     _dy2 = (1 / dy)^2
     _dz2 = (1 / dz)^2
+    _dx = 1 / dx
+    _dy = 1 / dy
+    _dz = 1 / dz
     _dx_2 = 1 / dx / 2
     _dy_2 = 1 / dy / 2
     _dz_2 = 1 / dz / 2
@@ -118,65 +100,76 @@ function homogeneous_dirichlet_vecE_3D(; do_visu=false)
     uy .= Data.Array(p0[2] .* u_pulse_shape)
     uz .= Data.Array(p0[3] .* u_pulse_shape)
 
-    # set boundaries to zeros
-    ux[1, :, :] .= @zeros(ny, nz)
-    ux[end, :, :] .= @zeros(ny, nz)
-    ux[:, 1, :] .= @zeros(nx, nz)
-    ux[:, end, :] .= @zeros(nx, nz)
-    ux[:, :, 1] .= @zeros(nx, ny)
-    ux[:, :, end] .= @zeros(nx, ny)
-    uy[1, :, :] .= @zeros(ny, nz)
-    uy[end, :, :] .= @zeros(ny, nz)
-    uy[:, 1, :] .= @zeros(nx, nz)
-    uy[:, end, :] .= @zeros(nx, nz)
-    uy[:, :, 1] .= @zeros(nx, ny)
-    uy[:, :, end] .= @zeros(nx, ny)
-    uz[1, :, :] .= @zeros(ny, nz)
-    uz[end, :, :] .= @zeros(ny, nz)
-    uz[:, 1, :] .= @zeros(nx, nz)
-    uz[:, end, :] .= @zeros(nx, nz)
-    uz[:, :, 1] .= @zeros(nx, ny)
-    uz[:, :, end] .= @zeros(nx, ny)
 
-    vx = @zeros(nx, ny, nz)
-    vy = @zeros(nx, ny, nz)
-    vz = @zeros(nx, ny, nz)
+    # set boundaries to zeros if the neighbouring rank is null
+    if neighbors_x[1] == MPI.MPI_PROC_NULL
+        ux[1, :, :] .= @zeros(ny, nz)
+        uy[1, :, :] .= @zeros(ny, nz) 
+        uz[1, :, :] .= @zeros(ny, nz)    
+    end
+    if neighbors_x[2] == MPI.MPI_PROC_NULL
+        ux[end, :, :] .= @zeros(ny, nz)
+        uy[end, :, :] .= @zeros(ny, nz)
+        uz[end, :, :] .= @zeros(ny, nz)
+    end
+    if neighbors_y[1] == MPI.MPI_PROC_NULL
+        ux[:, 1, :] .= @zeros(nx, nz)
+        uy[:, 1, :] .= @zeros(nx, nz)
+        uz[:, 1, :] .= @zeros(nx, nz)
+    end
+    if neighbors_y[2] == MPI.MPI_PROC_NULL
+        ux[:, end, :] .= @zeros(nx, nz)
+        uy[:, end, :] .= @zeros(nx, nz)
+        uz[:, end, :] .= @zeros(nx, nz)
+    end
+    if neighbors_z[1] == MPI.MPI_PROC_NULL
+        ux[:, :, 1] .= @zeros(nx, ny)
+        uy[:, :, 1] .= @zeros(nx, ny)
+        uz[:, :, 1] .= @zeros(nx, ny)
+    end
+    if neighbors_z[2] == MPI.MPI_PROC_NULL
+        ux[:, :, end] .= @zeros(nx, ny)
+        uy[:, :, end] .= @zeros(nx, ny)
+        uz[:, :, end] .= @zeros(nx, ny)
+    end
+
     # v_pulse_shape = [w0 * sin(k0 * x_g(ix, dx, ux[:, :, :])) * exp(-(x_g(ix, dx, ux[:, :, :]) - lx / 2)^2 / (2 * sigma2[1]) - (y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 / (2 * sigma2[2]) - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2 / (2 * sigma2[3])) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)]
     v_pulse_shape = [(2 * sech(0.5 * (k0 * (x_g(ix, dx, ux[:, :, :]) - lx / 2) - w0 * dt / 2)) - 2 * sech(0.5 * (k0 * (x_g(ix, dx, ux[:, :, :]) - lx / 2) + w0 * dt / 2))) / dt * exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 / (2 * sigma2[2]) - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2 / (2 * sigma2[3])) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)]
 
-    vx .= Data.Array(p0[1] .* v_pulse_shape)
-    vy .= Data.Array(p0[2] .* v_pulse_shape)
-    vz .= Data.Array(p0[3] .* v_pulse_shape)
+    vx = Data.Array(p0[1] .* v_pulse_shape)
+    vy = Data.Array(p0[2] .* v_pulse_shape)
+    vz = Data.Array(p0[3] .* v_pulse_shape)
 
     # static coefficient function 
 
+    # physics parameters
+    # permitivity
+    epsilon = [epsilon0 * (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)]
+    # conductivity
+    sigma = [(1 - exp(-0.5*(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - 0.5*(z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)]
+
     # \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)}
-    alpha = @zeros(nx, ny, nz)
-    alpha .= Data.Array([_mu0 * _epsilon0 * 1 / (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    alpha = Data.Array([_mu0 / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
 
     # -\frac{\frac{\partial}{\partial t}\sigma\left(\vec{r},t\right)}{\varepsilon_0 \varepsilon_r\left(\vec{r}\right)}
     beta = @zeros(nx, ny, nz)
 
     # -\frac{\sigma\left(\vec{r},t\right)}{\varepsilon_0 \varepsilon_r\left(\vec{r}\right)}
-    gamma = @zeros(nx, ny, nz)
-    gamma .= Data.Array([-(1 - exp(-0.5*(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - 0.5*(z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) * _epsilon0 * 1 / (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    gamma = Data.Array([-sigma[ix,iy,iz] / epsilon[ix,iy,iz]  for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
 
     # \frac{\nabla \varepsilon_r\left(\vec{r}\right) / \varepsilon_r\left(\vec{r}\right)}
-    etax = @zeros(nx, ny, nz)
-    etay = @zeros(nx, ny, nz)
-    etaz = @zeros(nx, ny, nz)
-    etax .= Data.Array([ 0*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
-    etay .= Data.Array([ -2*(y_g(iy, dy, ux[:, :, :]) - ly / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
-    etaz .= Data.Array([ -2*(z_g(iz, dz, ux[:, :, :]) - lz / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    etax = Data.Array([ epsilon0*0*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    etay = Data.Array([ -epsilon0*2*(y_g(iy, dy, ux[:, :, :]) - ly / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    etaz = Data.Array([ -epsilon0*2*(z_g(iz, dz, ux[:, :, :]) - lz / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
     
     
     if do_visu
         ENV["GKSwstype"] = "nul"
         if (me == 0)
-            if isdir("homogeneous_dirichlet_vecE_3D") == false
-                mkdir("homogeneous_dirichlet_vecE_3D")
+            if isdir(example_name) == false
+                mkdir(example_name)
             end
-            loadpath = "homogeneous_dirichlet_vecE_3D/"
+            loadpath = example_name * "/"
             anim = Animation(loadpath, String[])
             println("Animation directory: $(anim.dir)")
         end
@@ -204,7 +197,6 @@ function homogeneous_dirichlet_vecE_3D(; do_visu=false)
         end
 
         if do_visu && (it % nvis == 0)
-
             ux_inn .= Array(ux)[2:end-1, 2:end-1, 2:end-1]
             uy_inn .= Array(uy)[2:end-1, 2:end-1, 2:end-1]
             uz_inn .= Array(uz)[2:end-1, 2:end-1, 2:end-1]
@@ -216,9 +208,9 @@ function homogeneous_dirichlet_vecE_3D(; do_visu=false)
             u_v[3, :, :, :] .= u_tmp
 
             if me == 0
-                plt = heatmap(xi_g, yi_g, u_v[1, :, :, ceil(Int, nz_g() / 2)]'; xlims=(xi_g[1], xi_g[end]), ylims=(yi_g[1], yi_g[end]), clims=(-1, 1), aspect_ratio=1, c=:turbo)
-                png(plt, @sprintf("homogeneous_dirichlet_vecE_3D/%05d.png", iframe += 1))
-                save_array(@sprintf("homogeneous_dirichlet_vecE_3D/out_T_%05d", iframe), convert.(Float32, u_v))
+                plt = heatmap(xi_g, yi_g, u_v[2, :, :, ceil(Int, nz_g() / 2)]'; xlims=(xi_g[1], xi_g[end]), ylims=(yi_g[1], yi_g[end]), clims=(-1, 1), aspect_ratio=1, c=:turbo)
+                png(plt, example_name * @sprintf("/%05d.png", iframe += 1))
+                save_array(example_name * @sprintf("/out_T_%05d", iframe), convert.(Float32, u_v))
             end
         end
     end

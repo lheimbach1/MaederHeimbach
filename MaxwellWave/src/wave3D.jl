@@ -14,6 +14,7 @@ Important to call the kernel with size(u)-2
     return nothing
 end
 
+
 @doc raw"""
     @parallel_indices (ix, iy, iz) function update_vecv_nabla2!(ux, uy, uz, vx, vy, vz, dt, _dx2, _dy2, _dz2, alpha)
 
@@ -31,6 +32,7 @@ Computes the update rule for the velocity of the vector field through the equati
     end
     return nothing
 end
+
 
 @doc raw"""
     @parallel_indices (ix, iy, iz) function update_vecv_sigma!(ux, uy, uz, vx, vy, vz, dt, beta, gamma)
@@ -55,6 +57,21 @@ Computes the update rule for the velocity of the vector field through the equati
 ```math
 \vec{v}^{j+\frac{1}{2}} = \vec{v}^{j-\frac{1}{2}} + dt*\alpha\left(\vec{r}\right) \nabla \left(\vec{\eta}\left(\vec{r}\right) \cdot \vec{u}^{j} \right)
 ```
+
+and discretized in the following way:
+
+```math
+v_x^{j+\frac{1}{2}} \left[ix,iy,iz\right] = v_x^{j-\frac{1}{2}}\left[ix,iy,iz\right] + dt*\alpha\left[ix,iy,iz\right] \left( \left(\eta_x\left[ix+1,iy,iz\right]  u_x^{j}\left[ix+1,iy,iz\right] -  \eta_x\left[ix-1,iy,iz\right]  u_x^{j}\left[ix-1,iy,iz\right]\right) + \left(\eta_y\left[ix+1,iy,iz\right]  u_y^{j}\left[ix+1,iy,iz\right] -  \eta_y\left[ix-1,iy,iz\right]  u_y^{j}\left[ix-1,iy,iz\right]\right) + \left(\eta_z\left[ix+1,iy,iz\right]  u_z^{j}\left[ix+1,iy,iz\right] -  \eta_z\left[ix-1,iy,iz\right]  u_z^{j}\left[ix-1,iy,iz\right]\right)\right)/dx/2
+```
+
+```math
+v_y^{j+\frac{1}{2}} \left[ix,iy,iz\right] = v_y^{j-\frac{1}{2}}\left[ix,iy,iz\right] + dt*\alpha\left[ix,iy,iz\right] \left( \left(\eta_x\left[ix,iy+1,iz\right]  u_x^{j}\left[ix,iy+1,iz\right] -  \eta_x\left[ix,iy-1,iz\right]  u_x^{j}\left[ix,iy-1,iz\right]\right) + \left(\eta_y\left[ix,iy+1,iz\right]  u_y^{j}\left[ix,iy+1,iz\right] -  \eta_y\left[ix,iy-1,iz\right]  u_y^{j}\left[ix,iy-1,iz\right]\right) + \left(\eta_z\left[ix,iy+1,iz\right]  u_z^{j}\left[ix,iy+1,iz\right] -  \eta_z\left[ix,iy-1,iz\right]  u_z^{j}\left[ix,iy-1,iz\right]\right)\right)/dy/2
+```
+
+```math
+v_z^{j+\frac{1}{2}} \left[ix,iy,iz\right] = v_z^{j-\frac{1}{2}}\left[ix,iy,iz\right] + dt*\alpha\left[ix,iy,iz\right] \left( \left(\eta_x\left[ix,iy,iz+1\right]  u_x^{j}\left[ix,iy,iz+1\right] -  \eta_x\left[ix,iy,iz-1\right]  u_x^{j}\left[ix,iy,iz-1\right]\right) + \left(\eta_y\left[ix,iy,iz+1\right]  u_y^{j}\left[ix,iy,iz+1\right] -  \eta_y\left[ix,iy,iz-1\right]  u_y^{j}\left[ix,iy,iz-1\right]\right) + \left(\eta_z\left[ix,iy,iz+1\right]  u_z^{j}\left[ix,iy,iz+1\right] -  \eta_z\left[ix,iy,iz-1\right]  u_z^{j}\left[ix,iy,iz-1\right]\right)\right)/dz/2
+```
+
 """
 @parallel_indices (ix, iy, iz) function update_vecv_varepsilon!(ux, uy, uz, vx, vy, vz, dt, _dx_2, _dy_2, _dz_2, alpha, etax, etay, etaz)
     nx, ny, nz = size(ux)
@@ -72,5 +89,42 @@ Computes the update rule for the velocity of the vector field through the equati
                                                                         etaz[ix, iy, iz+1] * uz[ix, iy, iz+1] - etaz[ix, iy, iz-1] * uz[ix, iy, iz-1]) * _dz_2
 
     end
+    return nothing
+end
+
+@doc raw"""
+@parallel_indices (ix, iy, iz) function update_vecu_abs_yz_left!(ux, uy, uz, vx, vy, vz, dt)
+
+Computes the update rule for the vector field through the equation:
+```math
+\vec{u}^{j+1} = \vec{u}^{j} + dt*\vec{v}^{j+\frac{1}{2}}
+```
+But the yz-plain at x=0 is a absorbing plaine.
+Important to call the kernel with size(u)-2 in y,z, but with size(u)-1 in x
+This kernel is only allowed to be called from the ranks located at this domain boundary
+"""
+@parallel_indices (ix, iy, iz) function update_vecu_abs_yz_left!(ux, uy, uz, vx, vy, vz, dt)
+    ux[ix, iy+1, iz+1] = ux[ix, iy+1, iz+1] + dt * vx[ix, iy+1, iz+1]
+    uy[ix, iy+1, iz+1] = uy[ix, iy+1, iz+1] + dt * vy[ix, iy+1, iz+1]
+    uz[ix, iy+1, iz+1] = uz[ix, iy+1, iz+1] + dt * vz[ix, iy+1, iz+1]
+    return nothing
+end
+
+
+@doc raw"""
+@parallel_indices (iy, iz) function update_vecv_abs_yz_left!(ux, uy, uz, vx, vy, vz, c)
+
+Computes the update rule for the vector field through the equation:
+```math
+\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right)
+```
+But the yz-plain at x=0 is a absorbing plaine.
+Important to call the kernel with size(u)-2 in y,z
+This kernel is only allowed to be called from the ranks located at this domain boundary
+"""
+@parallel_indices (iy, iz) function compute_vecv_abs_yz_left!(ux, uy, uz, vx, vy, vz, c, _dx)
+    vx[1, iy+1, iz+1] = c * (ux[2, iy+1, iz+1] - ux[1, iy+1, iz+1])*_dx
+    vy[1, iy+1, iz+1] = c * (uy[2, iy+1, iz+1] - uy[1, iy+1, iz+1])*_dx
+    vz[1, iy+1, iz+1] = c * (uz[2, iy+1, iz+1] - uz[1, iy+1, iz+1])*_dx
     return nothing
 end
