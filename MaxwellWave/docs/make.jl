@@ -16,5 +16,5 @@ makedocs(
     ],
 )
 deploydocs(
-    repo = "github.com/lheimabch/MaxwellWave.jl.git",
+    repo = "github.com/lheimabch/MaederHeimbach/MaxwellWave.jl.git",
 )
