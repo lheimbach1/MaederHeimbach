@@ -15,3 +15,6 @@ makedocs(
         "auxiliary.md",
     ],
 )
+deploydocs(
+    repo = "github.com/lheimabch/MaederHeimbach/MaxwellWave.jl.git",devbranch = "heimbach"
+)
