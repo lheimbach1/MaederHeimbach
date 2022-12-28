@@ -93,7 +93,7 @@ v_z^{j+\frac{1}{2}} \left[ix,iy,iz\right] = v_z^{j-\frac{1}{2}}\left[ix,iy,iz\ri
 end
 
 @doc raw"""
-@parallel_indices (ix, iy, iz) function update_vecu_abs_yz_left!(ux, uy, uz, vx, vy, vz, dt)
+    @parallel_indices (ix, iy, iz) function update_vecu_abs_yz_left!(ux, uy, uz, vx, vy, vz, dt)
 
 Computes the update rule for the vector field through the equation:
 ```math

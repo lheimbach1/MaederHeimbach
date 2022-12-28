@@ -127,3 +127,17 @@ Where we have applied a central difference formula for the outer derivative. For
     end
     return nothing
 end
+
+
+@doc raw"""
+    @parallel_indices (ix, iy, iz) function compute_alpha!(alpha, ux, uy, uz, _mu0, _epsilon0, chi3, epsilon)
+
+Computes the new coefficient alpha in every step:
+```math
+alpha = \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right) + \mu_0\varepsilon_0 \chi^3\left(\vec{r}\right) \left\lvert \vec{E}\left(\vec{r},t\right)\right\rvert^2}
+```
+"""
+@parallel_indices (ix, iy, iz) function compute_alpha!(alpha, ux, uy, uz, _mu0, _epsilon0, chi3, epsilon)
+    alpha[ix,iy,iz] = _mu0*_epsilon0/(epsilon[ix,iy,iz] + chi3[ix,iy,iz]*(ux[ix,iy,iz]*ux[ix,iy,iz] + uy[ix,iy,iz]*uy[ix,iy,iz] + uz[ix,iy,iz]*uz[ix,iy,iz]))
+    return nothing
+end

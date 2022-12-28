@@ -6,7 +6,16 @@
 **/build
 **/homogeneous_dirichlet_Ez_out
 **/homogeneous_dirichlet_vecE_3D
+**/homogeneous_dirichlet_Ez_out/**
+**/homogeneous_dirichlet_vecE_3D/**
+**/absorbing_boundary_vecE_3D
+**/absorbing_boundary_vecE_3D/**
+**/nonlinear_vecE_3D
+**/nonlinear_vecE_3D/**
+**.e
+**.o
 *.e
 *.o
 **/bin_io.bin
 **/preliminarytest.jl
+

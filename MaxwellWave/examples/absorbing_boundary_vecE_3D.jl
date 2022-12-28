@@ -18,7 +18,7 @@ include("../src/auxiliary.jl")
 
 @doc raw"""
     absorbing_boundary_vecE_3D(; do_visu=false)
-Solves the two wave equation problem:
+Solves the 3D wave equation problem:
 ```math
 \nabla^2 \vec{E}\left(\vec{r},t\right) - \nabla \left(\frac{\nabla \varepsilon_r\left(\vec{r}\right) \cdot \vec{E}\left(\vec{r},t\right)}{\varepsilon_r\left(\vec{r}\right)} \right) - \mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right) \frac{\partial^2}{\partial t^2}\vec{E}\left(\vec{r},t\right) -\mu_0 \left(\frac{\partial}{\partial t}\sigma\left(\vec{r},t\right)\right)\vec{E}\left(\vec{r},t\right) -\mu_0\sigma\left(\vec{r},t\right) \left(\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right)\right) = 0, \; \vec{E} \in \Omega \times \left[0,T\right]
 ```
@@ -145,26 +145,26 @@ function absorbing_boundary_vecE_3D(; do_visu=false)
 
     # physics parameters
     # permitivity
-    epsilon = [epsilon0 * (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)]
+    epsilon = [ (1 + exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)]
     # conductivity
     sigma = [(1 - exp(-0.1*(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - 0.1*(z_g(iz, dz, ux[:, :, :]) - lz / 2)^2)) for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)]
 
     # for the absorbing boundary take the speed of light due to the average permitivity at that boundary piece of the mpi rank (bad approximation)
-    c_abs = sqrt(sum(epsilon[1,:,:])/(ny*nz)*mu0)
+    c_abs = sqrt(epsilon0 * sum(epsilon[1,:,:]) /(ny*nz)*mu0)
 
     # \frac{1}{\mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right)}
-    alpha = Data.Array([_mu0 / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    alpha = Data.Array([_mu0 / epsilon0 / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
 
     # -\frac{\frac{\partial}{\partial t}\sigma\left(\vec{r},t\right)}{\varepsilon_0 \varepsilon_r\left(\vec{r}\right)}
     beta = @zeros(nx, ny, nz)
 
     # -\frac{\sigma\left(\vec{r},t\right)}{\varepsilon_0 \varepsilon_r\left(\vec{r}\right)}
-    gamma = Data.Array([-sigma[ix,iy,iz] / epsilon[ix,iy,iz]  for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    gamma = Data.Array([-sigma[ix,iy,iz] / epsilon0 / epsilon[ix,iy,iz]  for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
 
     # \frac{\nabla \varepsilon_r\left(\vec{r}\right) / \varepsilon_r\left(\vec{r}\right)}
-    etax = Data.Array([ epsilon0*0*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
-    etay = Data.Array([ -epsilon0*2*(y_g(iy, dy, ux[:, :, :]) - ly / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
-    etaz = Data.Array([ -epsilon0*2*(z_g(iz, dz, ux[:, :, :]) - lz / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    etax = Data.Array([ 0*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    etay = Data.Array([ -2*(y_g(iy, dy, ux[:, :, :]) - ly / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
+    etaz = Data.Array([ -2*(z_g(iz, dz, ux[:, :, :]) - lz / 2)*exp(-(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) / epsilon[ix,iy,iz] for ix = 1:size(ux, 1), iy = 1:size(ux, 2), iz = 1:size(ux, 3)])
     
     
     if do_visu
@@ -221,9 +221,6 @@ function absorbing_boundary_vecE_3D(; do_visu=false)
             u_v[2, :, :, :] .= u_tmp
             gather!(uz_inn, u_tmp)
             u_v[3, :, :, :] .= u_tmp
-
-            # todo investigate
-            println(maximum(abs.(u_v[3, :, :, :])))
 
             if me == 0
                 plt = heatmap(xi_g, yi_g, u_v[2, :, :, ceil(Int, nz_g() / 2)]'; xlims=(xi_g[1], xi_g[end]), ylims=(yi_g[1], yi_g[end]), clims=(-1, 1), aspect_ratio=1, c=:turbo)

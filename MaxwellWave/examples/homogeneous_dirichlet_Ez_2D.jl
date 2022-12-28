@@ -1,8 +1,13 @@
-using Documenter
+# instantiate for running on daint
+if abspath(PROGRAM_FILE) == @__FILE__
+    using Pkg
+    Pkg.instantiate()
+end
 
+
+using Documenter
 using Plots, ParallelStencil, ParallelStencil.FiniteDifferences2D, Printf 
 using ImplicitGlobalGrid
-# import MPI
 
 # decide if one uses the gpu or cpu
 const USE_GPU = false
