@@ -1,4 +1,5 @@
 # Maxwell Wave
+[![Build Status](https://github.com/lheimabch/MaederHeimbach/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/lheimabch/MaederHeimbach/actions/workflows/CI.yml?query=branch%3Amain)
 The goal of this project is to solve the electromagnetic wave equation in 3D.
 
 # Derivation Partial Differentaial Equation
