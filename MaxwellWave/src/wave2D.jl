@@ -8,7 +8,10 @@ u^{j+1} = u^{j} + dt*v^{j+\frac{1}{2}}
 Important to call the kernel with size(u)-2
 """
 @parallel_indices (ix, iy) function update_u!(u, v, dt)
-    u[ix+1, iy+1] = u[ix+1, iy+1] + dt * v[ix+1, iy+1]
+    nx, ny = size(u)
+    if (ix >= 2 && iy >= 2 && ix <= nx - 1 && iy <= ny - 1)
+        u[ix, iy] = u[ix, iy] + dt * v[ix, iy]
+    end
     return nothing
 end
 

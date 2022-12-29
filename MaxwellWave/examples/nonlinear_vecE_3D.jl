@@ -1,9 +1,17 @@
+# instantiate for running on daint
+if abspath(PROGRAM_FILE) == @__FILE__
+    using Pkg
+    Pkg.instantiate()
+end
+
+
 using Documenter
 
 using Plots, ParallelStencil, ParallelStencil.FiniteDifferences3D, Printf
 using ImplicitGlobalGrid
 using StaticArrays
 import MPI
+ENV["GKSwstype"] = "nul"
 
 # decide if one uses the gpu or cpu
 const USE_GPU = false
@@ -215,7 +223,7 @@ function nonlinear_vecE_3D(; do_visu=false)
         
         # update u
         @hide_communication b_width begin
-            @parallel (1:size(ux, 1)-2, 1:size(ux, 2)-2, 1:size(ux, 3)-2) update_vecu!(ux, uy, uz, vx, vy, vz, dt)
+            @parallel update_vecu!(ux, uy, uz, vx, vy, vz, dt)
             update_halo!(ux, uy, uz)
         end
 

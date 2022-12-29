@@ -1,8 +1,16 @@
+# instantiate for running on daint
+if abspath(PROGRAM_FILE) == @__FILE__
+    using Pkg
+    Pkg.instantiate()
+end
+
+
 using Documenter
 
 using Plots, ParallelStencil, ParallelStencil.FiniteDifferences3D, Printf
 using ImplicitGlobalGrid
 import MPI
+ENV["GKSwstype"] = "nul"
 
 # decide if one uses the gpu or cpu
 const USE_GPU = false
@@ -202,14 +210,14 @@ function absorbing_boundary_vecE_3D(; do_visu=false)
         end
 
         # update u
-        @hide_communication b_width begin
-            if neighbors_x[1] == MPI.MPI_PROC_NULL
-                @parallel (1:size(ux, 1)-1, 1:size(ux, 2)-2, 1:size(ux, 3)-2) update_vecu_abs_yz_left!(ux, uy, uz, vx, vy, vz, dt)
-            else
-                @parallel (1:size(ux, 1)-2, 1:size(ux, 2)-2, 1:size(ux, 3)-2) update_vecu!(ux, uy, uz, vx, vy, vz, dt)
-            end
-            update_halo!(ux, uy, uz)
+        #@hide_communication b_width begin
+        if neighbors_x[1] == MPI.MPI_PROC_NULL
+            @parallel (1:size(ux, 1)-1, 1:size(ux, 2)-2, 1:size(ux, 3)-2) update_vecu_abs_yz_left!(ux, uy, uz, vx, vy, vz, dt)
+        else
+            @parallel update_vecu!(ux, uy, uz, vx, vy, vz, dt)
         end
+        update_halo!(ux, uy, uz)
+        #end
 
         if do_visu && (it % nvis == 0)
             ux_inn .= Array(ux)[2:end-1, 2:end-1, 2:end-1]

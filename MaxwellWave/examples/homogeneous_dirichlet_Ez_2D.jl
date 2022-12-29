@@ -10,7 +10,7 @@ using Plots, ParallelStencil, ParallelStencil.FiniteDifferences2D, Printf
 using ImplicitGlobalGrid
 
 # decide if one uses the gpu or cpu
-const USE_GPU = false
+const USE_GPU = true
 @static if USE_GPU
     @init_parallel_stencil(CUDA, Float64, 2)
 else
@@ -73,7 +73,7 @@ function homogeneous_dirichlet_Ez_2D(; do_visu=false)
     # initailize glo bal grid and such MPI
     me, dims = init_global_grid(nx, ny, 1)
     # optimization for communication
-    b_width = (8, 8, 4)
+    b_width = (8, 4)
 
     # derived numerics
     dx = lx / nx_g()
@@ -106,10 +106,12 @@ function homogeneous_dirichlet_Ez_2D(; do_visu=false)
 
     for it = 1:nt
         @parallel (1:size(u, 1), 1:size(u, 2)) update_v_nabla2!(u, v, dt, _dx2, _dy2, c2)
+        
         @hide_communication b_width begin
-            @parallel (1:size(u, 1) - 2, 1:size(u, 2) - 2) update_u!(u, v, dt)
+            @parallel update_u!(u, v, dt)
             update_halo!(u)
         end
+
         if do_visu && (it % nvis == 0)
             u_inn .= Array(u)[2:end-1, 2:end-1]
             gather!(u_inn, u_v)

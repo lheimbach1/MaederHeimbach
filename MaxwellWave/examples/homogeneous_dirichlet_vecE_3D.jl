@@ -1,11 +1,18 @@
+# instantiate for running on daint
+if abspath(PROGRAM_FILE) == @__FILE__
+    using Pkg
+    Pkg.instantiate()
+end
+
 using Documenter
 
 using Plots, ParallelStencil, ParallelStencil.FiniteDifferences3D, Printf
 using ImplicitGlobalGrid
 import MPI
+ENV["GKSwstype"] = "nul"
 
 # decide if one uses the gpu or cpu
-const USE_GPU = false
+const USE_GPU = true
 @static if USE_GPU
     @init_parallel_stencil(CUDA, Float64, 3)
 else
@@ -192,7 +199,7 @@ function homogeneous_dirichlet_vecE_3D(; do_visu=false)
         @parallel (1:size(ux, 1)-2, 1:size(ux, 2)-2, 1:size(ux, 3)-2) update_vecv_sigma!(ux, uy, uz, vx, vy, vz, dt, beta, gamma)
         @parallel (1:size(ux, 1), 1:size(ux, 2), 1:size(ux, 3)) update_vecv_varepsilon!(ux, uy, uz, vx, vy, vz, dt, _dx_2, _dy_2, _dz_2, alpha, etax, etay, etaz)
         @hide_communication b_width begin
-            @parallel (1:size(ux, 1)-2, 1:size(ux, 2)-2, 1:size(ux, 3)-2) update_vecu!(ux, uy, uz, vx, vy, vz, dt)
+            @parallel update_vecu!(ux, uy, uz, vx, vy, vz, dt)
             update_halo!(ux, uy, uz)
         end
 

@@ -1,7 +1,9 @@
+# instantiate for running on daint
 using Documenter
 using Printf
-using GLMakie
+using CairoMakie
 using LinearAlgebra
+
 
 include("../src/auxiliary.jl")
 
@@ -21,7 +23,7 @@ The settings in the function have to by changed to match the choosen script for 
     include( example_name * "_settings.jl")
 
     # number of ranks from mpi run, this had to be changed to match the mpi config
-    dims = [2,1,1]
+    dims = [2,2,2]
 
     # sparsitiy for vector plot
     sparse = [6,4,4]
@@ -42,8 +44,9 @@ The settings in the function have to by changed to match the choosen script for 
     epsilon = [epsilon0 * (1 + exp(-(yc[iy] - ly / 2)^2 - (zc[iz] - lz / 2)^2)) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
     # conductivity, this had to be changed to match the script
     sigma = [(1 - exp(-0.1*(yc[iy] - ly / 2)^2 - 0.1*(zc[iz] - lz / 2)^2)) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
+    
     # chi3, this had to be changed to match the script 
-    chi3 = [0.001*exp(-(x_g(ix, dx, ux[:, :, :]) - lx / 2)^2 -(y_g(iy, dy, ux[:, :, :]) - ly / 2)^2 - (z_g(iz, dz, ux[:, :, :]) - lz / 2)^2) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
+    chi3 = [0.01*exp(-(xc[ix] - lx / 2)^2 -(yc[iy] - ly / 2)^2 - (zc[iz] - lz / 2)^2) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
 
     # initial field to plot, this had to be changed to match the script
     u_pulse_shape = [2 * sech(0.5 * (k0 * (xc[ix] - lx / 2))) * exp(-(yc[iy] - ly / 2)^2 / (2 * sigma2[2]) - (zc[iz] - lz / 2)^2 / (2 * sigma2[3])) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
@@ -228,7 +231,7 @@ The settings in the function have to by changed to match the choosen script for 
 
     plt = volumeslices!(ax, xc, yc, zc, chi3,
         colormap = :turbo,  
-        colorrange=(0, 0.001),
+        colorrange=(0, 0.01),
         transparency = true
     )
     plt[:update_yz][](ceil(Int64,nx_v/2))

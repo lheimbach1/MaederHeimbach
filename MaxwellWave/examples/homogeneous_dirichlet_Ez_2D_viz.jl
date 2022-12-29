@@ -3,6 +3,7 @@ using Printf
 using Plots
 
 include("../src/auxiliary.jl")
+ENV["GKSwstype"] = "nul"
 
 @doc raw"""
     vizme()
@@ -16,7 +17,7 @@ The settings in the function have to by changed to match homogeneous_dirichlet_E
     nvis = 20
 
     #get from mulitxpu run
-    dims = [2,1,1]
+    dims = [2,2,1]
 
     #grid and plot parameters
     lx = 10

@@ -8,9 +8,12 @@ Computes the update rule for the vector field through the equation:
 Important to call the kernel with size(u)-2
 """
 @parallel_indices (ix, iy, iz) function update_vecu!(ux, uy, uz, vx, vy, vz, dt)
-    ux[ix+1, iy+1, iz+1] = ux[ix+1, iy+1, iz+1] + dt * vx[ix+1, iy+1, iz+1]
-    uy[ix+1, iy+1, iz+1] = uy[ix+1, iy+1, iz+1] + dt * vy[ix+1, iy+1, iz+1]
-    uz[ix+1, iy+1, iz+1] = uz[ix+1, iy+1, iz+1] + dt * vz[ix+1, iy+1, iz+1]
+    nx, ny, nz = size(ux)
+    if (ix >= 2 && iy >= 2 && iz >= 2 && ix <= nx - 1 && iy <= ny - 1 && iz <= nz - 1)
+        ux[ix, iy, iz] = ux[ix, iy, iz] + dt * vx[ix, iy, iz]
+        uy[ix, iy, iz] = uy[ix, iy, iz] + dt * vy[ix, iy, iz]
+        uz[ix, iy, iz] = uz[ix, iy, iz] + dt * vz[ix, iy, iz]
+    end
     return nothing
 end
 
