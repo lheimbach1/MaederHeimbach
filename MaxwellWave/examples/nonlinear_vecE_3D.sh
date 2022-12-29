@@ -3,7 +3,7 @@
 #SBATCH --output=nonlinear_vecE_3D.o
 #SBATCH --error=nonlinear_vecE_3D.e
 #SBATCH --time=12:00:00
-#SBATCH --nodes=2
+#SBATCH --nodes=8
 #SBATCH --ntasks-per-node=1
 #SBATCH --partition=normal
 #SBATCH --constraint=gpu
@@ -15,4 +15,4 @@ module load Julia/1.7.2-CrayGNU-21.09-cuda
 export MPICH_RDMA_ENABLED_CUDA=1
 export IGG_CUDAAWARE_MPI=1
 
-srun -n2 bash -c 'LD_PRELOAD="/usr/lib64/libcuda.so:/usr/local/cuda/lib64/libcudart.so" julia --project --check-bounds=no -O3 examples/nonlinear_vecE_3D.jl'
+srun -n8 bash -c 'LD_PRELOAD="/usr/lib64/libcuda.so:/usr/local/cuda/lib64/libcudart.so" julia --project --check-bounds=no -O3 examples/nonlinear_vecE_3D.jl'

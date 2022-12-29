@@ -1,7 +1,7 @@
 # instantiate for running on daint
 using Documenter
 using Printf
-using CairoMakie
+using GLMakie
 using LinearAlgebra
 
 
@@ -17,7 +17,7 @@ The settings in the function have to by changed to match the choosen script for 
 
     save_folder = "docs/" 
     # this had to be changed to chose the script
-    example_name = "absorbing_boundary_vecE_3D"
+    example_name = "homogeneous_dirichlet_vecE_3D"
 
     # include the physics and numerics settings for plotting
     include( example_name * "_settings.jl")
@@ -41,9 +41,9 @@ The settings in the function have to by changed to match the choosen script for 
     
     # physical constants
     # permitivity, this had to be changed to match the script
-    epsilon = [epsilon0 * (1 + exp(-(yc[iy] - ly / 2)^2 - (zc[iz] - lz / 2)^2)) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
+    epsilon = [(1 + exp(-(yc[iy] - ly / 2)^2 - (zc[iz] - lz / 2)^2)) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
     # conductivity, this had to be changed to match the script
-    sigma = [(1 - exp(-0.1*(yc[iy] - ly / 2)^2 - 0.1*(zc[iz] - lz / 2)^2)) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
+    sigma = [(1 - exp(-0.5*(yc[iy] - ly / 2)^2 - 0.5*(zc[iz] - lz / 2)^2)) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]
     
     # chi3, this had to be changed to match the script 
     chi3 = [0.01*exp(-(xc[ix] - lx / 2)^2 -(yc[iy] - ly / 2)^2 - (zc[iz] - lz / 2)^2) for ix = 1:size(u, 2), iy = 1:size(u, 3), iz = 1:size(u, 4)]

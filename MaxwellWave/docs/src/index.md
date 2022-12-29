@@ -14,6 +14,12 @@ Pages = [
 
 The goal of this project is to solve the electromagnetic wave equation in 3D.
 
+The documentation is hosted under [MaxwellWave](https://lheimabch.github.io/MaederHeimbach/dev/)
+
+## Authors
+- Lothar Heimbach, Master's Student in Computational Science and Engineering at ETH Zurich
+- Alexander Maeder, Master's Student in Electrical Engineering and Information Technology at ETH Zurich
+
 # Derivation Partial Differentaial Equation
 We start with the general Maxwell's equation:
 
@@ -183,5 +189,85 @@ $$\vec{v}\left(\vec{r},t\right) = - c \left(\vec{n} \cdot \nabla \right)\vec{u}\
 Therefore, the velocity can be directly calculated on the boundary and is not undefined anymore as before. In addition, we need the value of $\vec{u}\left(\vec{r},t\right)$ on the boundary. This we get through applying the update rule not only in the inside of the domain, but on the absorbing boundary.
 
 # Results
+In the following chapter, we present plots and gifs resulting from running different physics examples. All of the 2D examples were run on four GPUs, whereas the 3D examples were run on eight GPUs:
+
+## Homogenous 2D Problem
+For the first example, resulting from running:
+```bash
+julia --project examples/homogeneous_dirichlet_Ez_2D.jl
+julia --project examples/homogeneous_dirichlet_Ez_2D_viz.jl
+``` 
+We simulated in 2D the homogenous wave equation in vacuum with a initial condition of a modulated cosine modulated gaussian pulse with only perfect reflecting boundary conditions. 
+
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_Ez.gif)
+
+## Homogenous 3D Problem
+```bash
+julia --project examples/homogeneous_dirichlet_vecE_3D.jl
+julia --project examples/vecE_3D_viz.jl
+``` 
+Where one has to change the settings in vecE_3D_viz.jl to match the previous script.
+
+We simulate the derived system of equation in the linear lossy problem section with only perfect reflecting boundary conditions. 
+
+With the following normalized static material paramters:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_epsilon.png)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_sigma.png)
+
+And a y-polarized field with following initial conditions:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_inituy.png)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_sliceplty.gif)
+
+Then we present the propagation of the x- and y- component of the field since coupling to the z-component is vanishing with the choosen material parameters:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_slicepltx.gif)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_initvy.png)
+
+
+
+## Absorbing 3D Problem
+```bash
+julia --project examples/absorbing_boundary_vecE_3D.jl
+julia --project examples/vecE_3D_viz.jl
+``` 
+Where one has to change the settings in vecE_3D_viz.jl to match the previous script.
+
+We simulate the derived system of equation in the linear lossy problem section. In contrast to the previous section, on the left yz plane a first order perfect absorbing boundary conditions is applied. 
+
+With the following normalized static material paramters:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_epsilon.png)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_sigma.png)
+
+And a y-polarized field with following initial conditions:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_inituy.png)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_sliceplty.gif)
+
+Then we present the propagation of the x- and y- component of the field since coupling to the z-component is vanishing with the choosen material parameters:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_slicepltx.gif)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_initvy.png)
+
+## Nonlinear 3D Problem
+```bash
+julia --project examples/nonlinear_vecE_3D.jl
+julia --project examples/vecE_3D_viz.jl
+``` 
+Where one has to change the settings in vecE_3D_viz.jl to match the previous script.
+
+We simulate the derived system of equation in the $\chi^3$ nonlinear lossy problem section with only perfect reflecting boundary conditions. 
+
+With the following normalized static material paramters:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_epsilon.png)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_sigma.png)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_chi3.png)
+
+
+And a y-polarized field with following initial conditions:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_inituy.png)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_sliceplty.gif)
+
+Then we present the propagation of the x- and y- component of the field since coupling to the z-component is vanishing with the choosen material parameters:
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_slicepltx.gif)
+![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_initvy.png)
 
 # Conclusion and Possible Extensions
+
+# Running the Project Examples

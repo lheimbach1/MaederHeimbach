@@ -110,7 +110,7 @@ end
     @parallel (1:size(ux_init, 1), 1:size(ux_init, 2), 1:size(ux_init, 3)) update_vecv_nabla2!(ux_init, uy_init, uz_init, vx_init, vy_init, vz_init, dt, _dx2, _dy2, _dz2, alpha)
     @parallel (1:size(ux_init, 1)-2, 1:size(ux_init, 2)-2, 1:size(ux_init, 3)-2) update_vecv_sigma!(ux_init, uy_init, uz_init, vx_init, vy_init, vz_init, dt, beta, gamma)
     @parallel (1:size(ux_init, 1), 1:size(ux_init, 2), 1:size(ux_init, 3)) update_vecv_varepsilon!(ux_init, uy_init, uz_init, vx_init, vy_init, vz_init, dt, _dx_2, _dy_2, _dz_2, alpha, etax, etay, etaz)
-    @parallel (1:size(ux_init, 1)-2, 1:size(ux_init, 2)-2, 1:size(ux_init, 3)-2) update_vecu!(ux_init, uy_init, uz_init, vx_init, vy_init, vz_init, dt)
+    @parallel (1:size(ux_init, 1), 1:size(ux_init, 2), 1:size(ux_init, 3)) update_vecu!(ux_init, uy_init, uz_init, vx_init, vy_init, vz_init, dt)
 
     # refernce test with gold solution
     @test all(ux_gold .≈ Array(ux_init))
