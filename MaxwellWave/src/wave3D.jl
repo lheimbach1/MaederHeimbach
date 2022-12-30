@@ -113,15 +113,40 @@ This kernel is only allowed to be called from the ranks located at this domain b
     return nothing
 end
 
+@doc raw"""
+    @parallel_indices (ix, iy, iz) function update_vecu_abs(ux, uy, uz, vx, vy, vz, dt, neighbors_x, neighbors_y, neighbors_z, abs_x, abs_y, abs_z)
+
+Computes the update rule for the vector field through the equation:
+```math
+\vec{u}^{j+1} = \vec{u}^{j} + dt*\vec{v}^{j+\frac{1}{2}}
+```
+More general kernel, where depending on arguments it is decided if boundary is absorbing.
+neighbors_i gives the information if rank lies on left/right boundary and abs_i if this boundary is absorbing.
+"""
+@parallel_indices (ix, iy, iz) function update_vecu_abs!(ux, uy, uz, vx, vy, vz, dt, neighbors_x, neighbors_y, neighbors_z, abs_x, abs_y, abs_z)
+    nx, ny, nz = size(ux)
+    if (ix >= 2-(neighbors_x[1]*abs_x[1]) && 
+        iy >= 2-(neighbors_y[1]*abs_y[1]) && 
+        iz >= 2-(neighbors_z[1]*abs_z[1]) && 
+        ix <= nx - 1+(neighbors_x[2]*abs_x[2]) && 
+        iy <= ny - 1+(neighbors_y[2]*abs_y[2]) && 
+        iz <= nz - 1+(neighbors_z[2]*abs_z[2]))
+        ux[ix, iy, iz] = ux[ix, iy, iz] + dt * vx[ix, iy, iz]
+        uy[ix, iy, iz] = uy[ix, iy, iz] + dt * vy[ix, iy, iz]
+        uz[ix, iy, iz] = uz[ix, iy, iz] + dt * vz[ix, iy, iz]
+    end
+    return nothing
+end
+
 
 @doc raw"""
-@parallel_indices (iy, iz) function update_vecv_abs_yz_left!(ux, uy, uz, vx, vy, vz, c)
+    @parallel_indices (iy, iz) function update_vecv_abs_yz_left!(ux, uy, uz, vx, vy, vz, c)
 
 Computes the update rule for the vector field through the equation:
 ```math
 \frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right)
 ```
-But the yz-plain at x=0 is a absorbing plaine.
+The yz-plain at x=0 is a absorbing plaine.
 Important to call the kernel with size(u)-2 in y,z
 This kernel is only allowed to be called from the ranks located at this domain boundary
 """
@@ -129,5 +154,92 @@ This kernel is only allowed to be called from the ranks located at this domain b
     vx[1, iy+1, iz+1] = c * (ux[2, iy+1, iz+1] - ux[1, iy+1, iz+1])*_dx
     vy[1, iy+1, iz+1] = c * (uy[2, iy+1, iz+1] - uy[1, iy+1, iz+1])*_dx
     vz[1, iy+1, iz+1] = c * (uz[2, iy+1, iz+1] - uz[1, iy+1, iz+1])*_dx
+    return nothing
+end
+@doc raw"""
+    @parallel_indices (iy, iz) function compute_vecv_abs_yz_right!(ux, uy, uz, vx, vy, vz, c, _dx)
+
+Computes the update rule for the vector field through the equation:
+```math
+\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right)
+```
+The yz-plain at x=end is a absorbing plaine.
+Important to call the kernel with size(u)-2 in y,z
+This kernel is only allowed to be called from the ranks located at this domain boundary
+"""
+@parallel_indices (iy, iz) function compute_vecv_abs_yz_right!(ux, uy, uz, vx, vy, vz, c, _dx)
+    vx[end, iy+1, iz+1] = c * (ux[end-1, iy+1, iz+1] - ux[end, iy+1, iz+1])*_dx
+    vy[end, iy+1, iz+1] = c * (uy[end-1, iy+1, iz+1] - uy[end, iy+1, iz+1])*_dx
+    vz[end, iy+1, iz+1] = c * (uz[end-1, iy+1, iz+1] - uz[end, iy+1, iz+1])*_dx
+    return nothing
+end
+
+
+@doc raw"""
+    @parallel_indices (ix, iz) function update_vecv_abs_xz_left!(ux, uy, uz, vx, vy, vz, c)
+
+Computes the update rule for the vector field through the equation:
+```math
+\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right)
+```
+The xz-plain at y=0 is a absorbing plaine.
+Important to call the kernel with size(u)-2 in x,z
+This kernel is only allowed to be called from the ranks located at this domain boundary
+"""
+@parallel_indices (ix, iz) function compute_vecv_abs_xz_left!(ux, uy, uz, vx, vy, vz, c, _dx)
+    vx[ix+1, 1, iz+1] = c * (ux[ix+1, 2, iz+1] - ux[ix+1, 1, iz+1])*_dx
+    vy[ix+1, 1, iz+1] = c * (uy[ix+1, 2, iz+1] - uy[ix+1, 1, iz+1])*_dx
+    vz[ix+1, 1, iz+1] = c * (uz[ix+1, 2, iz+1] - uz[ix+1, 1, iz+1])*_dx
+    return nothing
+end
+@doc raw"""
+    @parallel_indices (ix, iz) function compute_vecv_abs_xz_right!(ux, uy, uz, vx, vy, vz, c, _dx)
+
+Computes the update rule for the vector field through the equation:
+```math
+\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right)
+```
+The xz-plain at y=end is a absorbing plaine.
+Important to call the kernel with size(u)-2 in x,z
+This kernel is only allowed to be called from the ranks located at this domain boundary
+"""
+@parallel_indices (ix, iz) function compute_vecv_abs_xz_right!(ux, uy, uz, vx, vy, vz, c, _dx)
+    vx[ix+1, end, iz+1] = c * (ux[ix+1, end-1, iz+1] - ux[ix+1, end, iz+1])*_dx
+    vy[ix+1, end, iz+1] = c * (uy[ix+1, end-1, iz+1] - uy[ix+1, end, iz+1])*_dx
+    vz[ix+1, end, iz+1] = c * (uz[ix+1, end-1, iz+1] - uz[ix+1, end, iz+1])*_dx
+    return nothing
+end
+
+@doc raw"""
+    @parallel_indices (ix, iy) function compute_vecv_abs_xy_left!(ux, uy, uz, vx, vy, vz, c, _dx)
+
+Computes the update rule for the vector field through the equation:
+```math
+\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right)
+```
+The xy-plain at yzl the kernel with size(u)-2 in x,y
+This kernel is only allowed to be called from the ranks located at this domain boundary
+"""
+@parallel_indices (ix, iy) function compute_vecv_abs_xy_left!(ux, uy, uz, vx, vy, vz, c, _dx)
+    vx[ix+1, iy+1, 1] = c * (ux[ix+1, iy+1, 2] - ux[ix+1, iy+1, 1])*_dx
+    vy[ix+1, iy+1, 1] = c * (uy[ix+1, iy+1, 2] - uy[ix+1, iy+1, 1])*_dx
+    vz[ix+1, iy+1, 1] = c * (uz[ix+1, iy+1, 2] - uz[ix+1, iy+1, 1])*_dx
+    return nothing
+end
+@doc raw"""
+    @parallel_indices (ix, iy) function compute_vecv_abs_xy_right!(ux, uy, uz, vx, vy, vz, c, _dx)
+
+Computes the update rule for the vector field through the equation:
+```math
+\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right)
+```
+The xy-plain at z=end is a absorbing plaine.
+Important to call the kernel with size(u)-2 in x,y
+This kernel is only allowed to be called from the ranks located at this domain boundary
+"""
+@parallel_indices (ix, iy) function compute_vecv_abs_xy_right!(ux, uy, uz, vx, vy, vz, c, _dx)
+    vx[ix+1, iy+1, end] = c * (ux[ix+1, iy+1, end-1] - ux[ix+1, iy+1, end])*_dx
+    vy[ix+1, iy+1, end] = c * (uy[ix+1, iy+1, end-1] - uy[ix+1, iy+1, end])*_dx
+    vz[ix+1, iy+1, end] = c * (uz[ix+1, iy+1, end-1] - uz[ix+1, iy+1, end])*_dx
     return nothing
 end

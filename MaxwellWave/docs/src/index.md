@@ -21,7 +21,7 @@ The documentation is hosted under [MaxwellWave](https://lheimabch.github.io/Maed
 - Alexander Maeder, Master's Student in Electrical Engineering and Information Technology at ETH Zurich
 
 # Derivation Partial Differentaial Equation
-We start with the general Maxwell's equation:
+For the derivation, we start with the general Maxwell's equation:
 
 $$\nabla \cdot \vec{D}\left(\vec{r},t\right) = p_0\left(\vec{r},t\right)$$
 
@@ -31,7 +31,7 @@ $$\nabla \times \vec{H}\left(\vec{r},t\right) = \frac{\partial}{\partial t} \vec
 
 $$\nabla \cdot \vec{B}\left(\vec{r},t\right) = 0$$
 
-We have to further supplement this system of equation with constitutive relations.
+We have to further supplement this system of equations with constitutive relations.
 
 ## Linear Lossy Problem
 We choose for the first problem setting a nonmagnetic dielectric with no free charges and no nonlinearities:<br />
@@ -54,7 +54,7 @@ $$\nabla \times \vec{H}\left(\vec{r},t\right) = \varepsilon_0 \varepsilon_r\left
 
 $$\nabla \cdot \vec{H}\left(\vec{r},t\right) = 0$$
 
-To further simplify the system, we apply multiple transformations and vector caculus identities:
+To further simplify the system, we apply multiple transformations and vector calculus identities:
 
 $$\nabla \times \nabla \times \vec{E}\left(\vec{r},t\right) = - \mu_0 \frac{\partial}{\partial t} \nabla \times \vec{H}\left(\vec{r},t\right)$$
 
@@ -72,7 +72,7 @@ With all of these simplifications, we arrive at the final equation for the elect
 
 $$\nabla^2 \vec{E}\left(\vec{r},t\right) + \nabla \left(\frac{\nabla \varepsilon_r\left(\vec{r}\right) \cdot \vec{E}\left(\vec{r},t\right)}{\varepsilon_r\left(\vec{r}\right)} \right) - \mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right) \frac{\partial^2}{\partial t^2}\vec{E}\left(\vec{r},t\right) -\mu_0 \left(\frac{\partial}{\partial t}\sigma\left(\vec{r},t\right)\right)\vec{E}\left(\vec{r},t\right) -\mu_0\sigma\left(\vec{r},t\right) \left(\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right)\right) = 0$$
 
-which can be equivalently formulated as: 
+Which can be equivalently formulated as: 
 
 $$\frac{\partial}{\partial t}\begin{bmatrix}
         \vec{u}\left(\vec{r},t\right)\\
@@ -96,7 +96,7 @@ $$\vec{u}\left(\vec{r},t\right) = \vec{E}\left(\vec{r},t\right)$$
 $$\vec{v}\left(\vec{r},t\right) = \frac{\partial}{\partial t} \vec{E}\left(\vec{r},t\right)$$
 
 ## $\chi^3$ Nonlinear Lossy Problem
-We choose for the second problem setting a more general setting such that third harmonic effects can be captured by the simulation, for this we assumse these constitutive relations:<br />
+We choose for the second problem a more general setting such that third harmonic effects can be captured by the simulation. We assume the following constitutive relations:<br />
 
 $$p_0\left(\vec{r},t\right) = 0$$
 
@@ -136,7 +136,7 @@ Through the addition of the nonlinear term, we get a nasty term that makes it im
 
 $$\frac{\partial^2}{\partial t^2} \left( \left\lvert \vec{E}\left(\vec{r},t\right)\right\rvert^2 \vec{E}\left(\vec{r},t\right)\right) \approx \left\lvert \vec{E}\left(\vec{r},t\right)\right\rvert^2 \frac{\partial^2}{\partial t^2} \vec{E}\left(\vec{r},t\right)$$
 
-Then we can plug everythin in one equation:
+Then we can plug everything into one equation:
 
 $$- \nabla^2 \vec{E}\left(\vec{r},t\right) + \nabla \left( - \frac{\nabla \varepsilon_r\left(\vec{r}\right) \cdot \vec{E}\left(\vec{r},t\right)}{\varepsilon_r\left(\vec{r}\right)} - \frac{1}{\varepsilon \left(\vec{r}\right)} \nabla \cdot \left(\chi^3\left(\vec{r}\right)\left\lvert \vec{E}\left(\vec{r},t\right)\right\rvert^2 \vec{E}\left(\vec{r},t\right) \right) \right) = - \mu_0 \varepsilon_0 \varepsilon_r\left(\vec{r}\right) \frac{\partial^2}{\partial t^2} \vec{E}\left(\vec{r},t\right) - \mu_0 \varepsilon_0 \chi^3\left(\vec{r}\right) \left\lvert \vec{E}\left(\vec{r},t\right)\right\rvert^2 \frac{\partial^2}{\partial t^2} \vec{E}\left(\vec{r},t\right) - \mu_0 \frac{\partial \sigma\left(\vec{r},t\right)}{\partial t} \vec{E}\left(\vec{r},t\right)- \mu_0 \frac{\partial \vec{E}\left(\vec{r},t\right)}{\partial t}\sigma\left(\vec{r},t\right)$$
 
@@ -165,16 +165,15 @@ $$\vec{v}\left(\vec{r},t\right) = \frac{\partial}{\partial t} \vec{E}\left(\vec{
 
 # Boundary Condition
 
-In this project, we use various types of boundary condition for modeling different physical systems:
+In this project, we use various types of boundary conditions for modeling different physical systems:
 
 ## Perfect Electric Conductor Boundary Conditions
-This boundary condition models a perfect metallic mirror. In The whole field is reflected at the boundary and no field is allowed to exist inside the mirror. The perfect electric conductor is represented through the dirichlet boundary condition:
+This boundary condition model a perfect metallic mirror. The whole field is reflected at the boundary and no field is allowed to exist inside the mirror. The perfect electric conductor is represented through the Dirichlet boundary condition:
 
 $$\vec{E}\left(\vec{r},t\right) = 0, \; \vec{r} \in \partial \Omega_{PEC}$$
 
 ## Perfect Absorbing Boundary Conditions
-
-Perfect absorbing boundary conditions should model infinit free space propagation of the field without reflections.
+Perfect absorbing boundary conditions should model infinite free space propagation of the field without reflections.
 
 A first naive idea is to use again the perfect electric conductor boundary conditions, but introduce a highly absorbing conductivity layer at the boundary.
 
@@ -182,92 +181,133 @@ Another choice for the perfect absorbing boundary conditions is the zeroth order
 
 $$\frac{\partial}{\partial t}\vec{E}\left(\vec{r},t\right) + c \left(\vec{n} \cdot \nabla \right)\vec{E}\left(\vec{r},t\right), \; \vec{r} \in \partial \Omega_{PA0}$$
 
-Where $c$ is the speed of light in the boundary medium and $\vec{n}$ is the outwards pointing boundary normal vector. This can be then rewriten in the following way:
+Where $c$ is the speed of light in the boundary medium and $\vec{n}$ is the outwards pointing boundary normal vector. This condition can be rewritten in the following way:
 
 $$\vec{v}\left(\vec{r},t\right) = - c \left(\vec{n} \cdot \nabla \right)\vec{u}\left(\vec{r},t\right), \; \vec{r} \in \partial \Omega_{PA0}$$
 
-Therefore, the velocity can be directly calculated on the boundary and is not undefined anymore as before. In addition, we need the value of $\vec{u}\left(\vec{r},t\right)$ on the boundary. This we get through applying the update rule not only in the inside of the domain, but on the absorbing boundary.
+Therefore, the velocity can be directly calculated on the boundary and is not undefined anymore as before. In addition, we need the value of $\vec{u}\left(\vec{r},t\right)$ on the boundary. This field we get through applying the update rule not only on the inside of the domain but on the absorbing boundary.
 
 # Results
-In the following chapter, we present plots and gifs resulting from running different physics examples. All of the 2D examples were run on four GPUs, whereas the 3D examples were run on eight GPUs:
+In the following chapter, we present plots and gifs resulting from running different physics examples. All of the 2D codes were run on four GPUs, whereas the 3D ones were on eight GPUs:
 
 ## Homogenous 2D Problem
-For the first example, resulting from running:
-```bash
-julia --project examples/homogeneous_dirichlet_Ez_2D.jl
-julia --project examples/homogeneous_dirichlet_Ez_2D_viz.jl
-``` 
-We simulated in 2D the homogenous wave equation in vacuum with a initial condition of a modulated cosine modulated gaussian pulse with only perfect reflecting boundary conditions. 
+In the first example, we simulate the 2D homogenous wave equation in a vacuum. The reflecting boundary condition is chosen. The field is initialized with a cosine-modulated gaussian pulse.  
 
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_Ez.gif)
 
+We plot only the z-component because there is no coupling between different polarizations in a vacuum. 
+
 ## Homogenous 3D Problem
-```bash
-julia --project examples/homogeneous_dirichlet_vecE_3D.jl
-julia --project examples/vecE_3D_viz.jl
-``` 
-Where one has to change the settings in vecE_3D_viz.jl to match the previous script.
+As a second example, we simulate the full equation derived in the linear lossy problem section with reflecting boundary conditions. We chose a static conductivity and both permeability/conductivity are plotted below:
 
-We simulate the derived system of equation in the linear lossy problem section with only perfect reflecting boundary conditions. 
-
-With the following normalized static material paramters:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_epsilon.png)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_sigma.png)
 
-And a y-polarized field with following initial conditions:
+As the initial condition, we chose a y-polarized pulse. It has the shape of a  hyperbolic secant in the x-direction and a gaussian in the y/z-direction. This pulse is set to propagate in the positive x-direction:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_inituy.png)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_sliceplty.gif)
 
-Then we present the propagation of the x- and y- component of the field since coupling to the z-component is vanishing with the choosen material parameters:
+In the following plots, we present the time evolution of the vector field. We omit to plot the z-component because it is vanishing with the chosen material parameters:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_slicepltx.gif)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_initvy.png)
-
+We can see that there is a coupling from linear y-polarized field to x/y-elliptic polarized with a gaussian shaped dielectric waveguide.
 
 
 ## Absorbing 3D Problem
-```bash
-julia --project examples/absorbing_boundary_vecE_3D.jl
-julia --project examples/vecE_3D_viz.jl
-``` 
-Where one has to change the settings in vecE_3D_viz.jl to match the previous script.
+As in the previous example, we simulate the equation of the linear lossy problem section. In contrast, we changed the boundary condition and the material parameters. We applied on the left y/z-plane a first-order perfect absorbing boundary condition. 
 
-We simulate the derived system of equation in the linear lossy problem section. In contrast to the previous section, on the left yz plane a first order perfect absorbing boundary conditions is applied. 
-
-With the following normalized static material paramters:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_epsilon.png)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_sigma.png)
 
-And a y-polarized field with following initial conditions:
+The initial conditions are not changed:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_inituy.png)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_sliceplty.gif)
 
-Then we present the propagation of the x- and y- component of the field since coupling to the z-component is vanishing with the choosen material parameters:
+As in the previous example, we plot only the x/y-component:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_slicepltx.gif)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_initvy.png)
+Since we simulate for a longer period of time, we can see that the field is fully absorbed in the left plane. This is due to the fact that first-order absorbing boundary conditions are perfect if the wavevector is perpendicular to the surface.
 
 ## Nonlinear 3D Problem
-```bash
-julia --project examples/nonlinear_vecE_3D.jl
-julia --project examples/vecE_3D_viz.jl
-``` 
-Where one has to change the settings in vecE_3D_viz.jl to match the previous script.
-
 We simulate the derived system of equation in the $\chi^3$ nonlinear lossy problem section with only perfect reflecting boundary conditions. 
 
-With the following normalized static material paramters:
+The material parameters are not changed, but a $\chi^3$ is defined. We chose that only nonlinear effects happen in the center of the domain:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_epsilon.png)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_sigma.png)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_chi3.png)
 
 
-And a y-polarized field with following initial conditions:
+The initial conditions are again not changed:
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_inituy.png)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_sliceplty.gif)
 
-Then we present the propagation of the x- and y- component of the field since coupling to the z-component is vanishing with the choosen material parameters:
+We omit again the z-component, since even with nonlinear effect the coupling to the z-component is small. 
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_slicepltx.gif)
 ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_initvy.png)
+The effect of nonlinearity is difficult to see. We would need to calculate the instantaneous frequency, because new frequencies are generated and the pulse gets chirped.
 
 # Conclusion and Possible Extensions
+## Conclusion
+In the previous section, we presented multiple simulations of Maxwell's equation with different assumptions on the constitutive relations, boundary conditions, and material parameters. There we demonstrated scalability on many GPUs/CPUs to compute large-scale electromagnetism problems with high accuracy. Now different time domain problems such as nonlinear pulse formation or transmission characteristics of photonic components over a large bandwidth can be investigated. 
+
+## Possible Extensions
+For the above-mentioned problems, we would need to change the material parameters and depending on the problem chose different boundary conditions. In addition, to get transmission characteristics we would have to implement a port boundary condition. Where a high bandwidth pulse can be directly inserted at the boundary and every reflection is absorbed. Then we would need to Fourier transform the inserted/transmitted/reflected signals to get transmission characteristics in the frequency domain with a single simulation. 
+
+On the technical side, we could implement low-level optimization for the GPU kernel such as the use of shared memory. For such optimizations, we should first investigate the performance metric of our implemented kernels, which is a missing feature due to time constraints. 
+In addition, for the absorbing boundary condition we could implement a more general kernel c, which applies depending on function arguments the boundary condition.
 
 # Running the Project Examples
+One has to instantiate the Julia project first before running any script:
+```bash
+julia --project -e 'using Pkg; Pkg.instantiate()'
+```
+
+## Local Documentation
+One has to run the following commands to create documentation locally:
+```bash
+cd docs/
+julia --project make.jl
+``` 
+It will create a build folder with the documentation inside as described in [Documenter Guide](https://documenter.juliadocs.org/stable/man/guide/).
+
+## Testing Locally
+The following commands will precompile the project, check dependencies and run the tests according to [Unit Test](https://docs.julialang.org/en/v1/stdlib/Test/):
+```bash
+julia --project -e 'using Pkg; Pkg.test()'
+``` 
+
+## Running Locally
+As most of the scripts use MPI, one has to configure the right MPI binary with [MPIPreferences](https://juliaparallel.org/MPI.jl/stable/configuration/).
+For example, if one wants to use the system MPI binary:
+```bash
+julia --project -e 'using MPIPreferences; MPIPreferences.use_system_binary()'
+``` 
+Afterward, the example can be run in the following way:
+```bash
+mpiexec -n X julia --project examples/homogeneous_dirichlet_Ez_2D.jl
+mpiexec -n X julia --project examples/homogeneous_dirichlet_vecE_3D.jl
+mpiexec -n X julia --project examples/absorbing_boundary_vecE_3D.jl
+mpiexec -n X julia --project examples/nonlinear_vecE_3D.jl
+```
+Where X is the number of ranks to run. The flag USE_GPU inside the scripts has to be set to choose between running on CPU or GPU. 
+
+## Running on Piz Daint
+Inside the example folder, there are bash scripts for the different examples to run on Pz Daint:
+```bash
+sbatch examples/homogeneous_dirichlet_Ez_2D.sh
+sbatch examples/homogeneous_dirichlet_vecE_3D.sh
+sbatch examples/absorbing_boundary_vecE_3D.sh
+sbatch examples/nonlinear_vecE_3D.sh
+```
+
+## Visualization 
+The following scripts have to be executed after running the simulations to create the presented plots in the result section:
+
+```bash
+julia --project examples/homogeneous_dirichlet_Ez_2D_viz.jl
+```
+
+```bash
+julia --project examples/vecE_3D_viz.jl
+```
+Where in the "vecE_3D_viz.jl" multiple settings have to be changed depending on "homogeneous_dirichlet_vecE_3D"/"absorbing_boundary_vecE_3D"/"nonlinear_vecE_3D". The settings "example_name" "dims", "epsilon", "sigma", "chi3", "u_pulse_shape", and "v_pulse_shape" should match the simulation. 
