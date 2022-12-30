@@ -18,9 +18,9 @@ jobs:
         with:
           version: '1.6'
       - name: Install dependencies
-        run: julia --project=MaxwellWave/ -e 'cd("MaxwellWave");using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+        run: julia --project=MaxwellWave/docs/ -e 'cd("MaxwellWave");using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
           # DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
-        run: julia --project=MaxwellWave/ MaxwellWave/docs/make.jl
+        run: julia --project=MaxwellWave/docs/ MaxwellWave/docs/make.jl
