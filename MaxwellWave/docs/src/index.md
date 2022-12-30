@@ -193,7 +193,8 @@ In the following chapter, we present plots and gifs resulting from running diffe
 ## Homogenous 2D Problem
 In the first example, we simulate the 2D homogenous wave equation in a vacuum. The reflecting boundary condition is chosen. The field is initialized with a cosine-modulated gaussian pulse.  
 
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_Ez.gif)
+<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_Ez.gif) -->
+![](./homogeneous_dirichlet_Ez.gif)
 
 We plot only the z-component because there is no coupling between different polarizations in a vacuum. 
 
