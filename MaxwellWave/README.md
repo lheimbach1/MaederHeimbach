@@ -182,84 +182,59 @@ In the following chapter, we present plots and gifs resulting from running diffe
 ## Homogenous 2D Problem
 In the first example, we simulate the 2D homogenous wave equation in a vacuum. The reflecting boundary condition is chosen. The field is initialized with a cosine-modulated gaussian pulse.  
 
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_Ez.gif)
+![](./docs/src/homogeneous_dirichlet_Ez.gif)
 
 We plot only the z-component because there is no coupling between different polarizations in a vacuum. 
 
 ## Homogenous 3D Problem
 As a second example, we simulate the full equation derived in the linear lossy problem section with reflecting boundary conditions. We chose a static conductivity and both permeability/conductivity are plotted below:
 
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_epsilon.png)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_sigma.png) -->
-
-![](./docs/homogeneous_dirichlet_vecE_3D_epsilon.png)
-![](./docs/homogeneous_dirichlet_vecE_3D_sigma.png)
+![](./docs/src/homogeneous_dirichlet_vecE_3D_epsilon.png)
+![](./docs/src/homogeneous_dirichlet_vecE_3D_sigma.png)
 
 As the initial condition, we chose a y-polarized pulse. It has the shape of a  hyperbolic secant in the x-direction and a gaussian in the y/z-direction. This pulse is set to propagate in the positive x-direction:
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_inituy.png)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_sliceplty.gif) -->
-
-![](./docs/homogeneous_dirichlet_vecE_3D_inituy.png)
-![](./docs/homogeneous_dirichlet_vecE_3D_sliceplty.gif)
+![](./docs/src/homogeneous_dirichlet_vecE_3D_inituy.png)
+![](./docs/src/homogeneous_dirichlet_vecE_3D_sliceplty.gif)
 
 In the following plots, we present the time evolution of the vector field. We omit to plot the z-component because it is vanishing with the chosen material parameters:
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_slicepltx.gif)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/homogeneous_dirichlet_vecE_3D_initvy.png) -->
-
-![](./docs/homogeneous_dirichlet_vecE_3D_slicepltx.gif)
-![](./docs/homogeneous_dirichlet_vecE_3D_initvy.png)
+![](./docs/src/homogeneous_dirichlet_vecE_3D_slicepltx.gif)
+![](./docs/src/homogeneous_dirichlet_vecE_3D_initvy.png)
 We can see that there is a coupling from linear y-polarized field to x/y-elliptic polarized with a gaussian shaped dielectric waveguide.
 
 
 ## Absorbing 3D Problem
 As in the previous example, we simulate the equation of the linear lossy problem section. In contrast, we changed the boundary condition and the material parameters. We applied on the left y/z-plane a first-order perfect absorbing boundary condition. 
 
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_epsilon.png)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_sigma.png) -->
-
-![](./docs/absorbing_boundary_vecE_3D_epsilon.png)
-![](./docs/absorbing_boundary_vecE_3D_sigma.png)
+![](./docs/src/absorbing_boundary_vecE_3D_epsilon.png)
+![](./docs/src/absorbing_boundary_vecE_3D_sigma.png)
 
 The initial conditions are not changed:
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_inituy.png)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_sliceplty.gif) -->
-
-![](./docs/absorbing_boundary_vecE_3D_inituy.png)
-![](./docs/absorbing_boundary_vecE_3D_sliceplty.gif)
+![](./docs/src/absorbing_boundary_vecE_3D_inituy.png)
+![](./docs/src/absorbing_boundary_vecE_3D_sliceplty.gif)
 
 As in the previous example, we plot only the x/y-component:
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_slicepltx.gif)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/absorbing_boundary_vecE_3D_initvy.png) -->
-
-![](./docs/absorbing_boundary_vecE_3D_slicepltx.gif)
-![](./docs/absorbing_boundary_vecE_3D_initvy.png)
+![](./docs/src/absorbing_boundary_vecE_3D_slicepltx.gif)
+![](./docs/src/absorbing_boundary_vecE_3D_initvy.png)
 Since we simulate for a longer period of time, we can see that the field is fully absorbed in the left plane. This is due to the fact that first-order absorbing boundary conditions are perfect if the wavevector is perpendicular to the surface.
 
 ## Nonlinear 3D Problem
 We simulate the derived system of equation in the $\chi^3$ nonlinear lossy problem section with only perfect reflecting boundary conditions. 
 
 The material parameters are not changed, but a $\chi^3$ is defined. We chose that only nonlinear effects happen in the center of the domain:
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_epsilon.png)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_sigma.png)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_chi3.png) -->
 
-![](./docs/nonlinear_vecE_3D_epsilon.png)
-![](./docs/nonlinear_vecE_3D_sigma.png)
-![](./docs/nonlinear_vecE_3D_chi3.png)
+![](./docs/src/nonlinear_vecE_3D_epsilon.png)
+![](./docs/src/nonlinear_vecE_3D_sigma.png)
+![](./docs/src/nonlinear_vecE_3D_chi3.png)
 
 The initial conditions are again not changed:
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_inituy.png)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_sliceplty.gif) -->
 
-![](./docs/nonlinear_vecE_3D_inituy.png)
-![](./docs/nonlinear_vecE_3D_sliceplty.gif)
+![](./docs/src/nonlinear_vecE_3D_inituy.png)
+![](./docs/src/nonlinear_vecE_3D_sliceplty.gif)
 
 We omit again the z-component, since even with nonlinear effect the coupling to the z-component is small. 
-<!-- ![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_slicepltx.gif)
-![](https://github.com/lheimabch/MaederHeimbach/blob/main/MaxwellWave/docs/nonlinear_vecE_3D_initvy.png) -->
 
-![](./docs/nonlinear_vecE_3D_slicepltx.gif)
-![](./docs/nonlinear_vecE_3D_initvy.png)
+![](./docs/src/nonlinear_vecE_3D_slicepltx.gif)
+![](./docs/src/nonlinear_vecE_3D_initvy.png)
 The effect of nonlinearity is difficult to see. We would need to calculate the instantaneous frequency, because new frequencies are generated and the pulse gets chirped.
 
 # Conclusion and Possible Extensions
